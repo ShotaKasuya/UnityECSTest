@@ -2,7 +2,8 @@ using Component.Player;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
+using Unity.Physics;
+using UnityEngine;
 
 namespace System.Player
 {
@@ -16,10 +17,12 @@ namespace System.Player
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            foreach (var (input, transform) in SystemAPI.Query<RefRO<PlayerInputData>, RefRW<LocalTransform>>())
+            foreach (var (input, physicsVelocity) in SystemAPI.Query<RefRO<PlayerInputData>, RefRW<PhysicsVelocity>>())
             {
+                var currentLinear = physicsVelocity.ValueRO.Linear;
                 var moveInput = input.ValueRO.MoveInput;
-                transform.ValueRW.Translate(new float3(moveInput.x, 0, moveInput.y));
+                Debug.Log($"move input: {moveInput}");
+                physicsVelocity.ValueRW.Linear = new float3(moveInput.x, currentLinear.y, moveInput.y);
             }
         }
 
